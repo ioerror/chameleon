@@ -8,11 +8,16 @@ import ctypes
 import ctypes.util
 import time
 import sys
+import platform
 libc = ctypes.CDLL(ctypes.util.find_library("c"))
 
 class chameleon:
     """Set a custom process name for a program"""
     def __init__(self, new_name=None):
+        # This only works in CPython until Jython or IronPython provides ctypes
+        # by default
+        if platform.python_implementation() != "CPython":
+            raise RuntimeError("Only CPython is supported!")
         ################################################
         # import names from /usr/include/linux/prctl.h #
         ################################################
@@ -42,10 +47,12 @@ class chameleon:
         self.argc = ctypes.c_int(0)
         self.argv = self.argv_ptr()
         self.Py_GetArgcArgv(self.argc, ctypes.pointer(self.argv))
+        old_size = len(self.get_arg_name())
         size = len(new_name)
         if size >= self.max_size:
           size = self.max_size
-        ctypes.memset(self.argv.contents, 0, (size + 1)) # We're terminated
+        zero_size = max(old_size, size)
+        ctypes.memset(self.argv.contents, 0, (zero_size + 1)) # We're terminated
         ctypes.memmove(self.argv.contents, new_name, size)
 
     def get_arg_name(self):
@@ -65,7 +72,7 @@ class chameleon:
         libc.prctl(self.PR_SET_NAME, ctypes.byref(name), 0, 0, 0)
 
     def get_prctl_name(self):
-        current_name = ctypes.create_string_buffer(256)
+        current_name = ctypes.create_string_buffer(self.max_size)
         libc.prctl(self.PR_GET_NAME, ctypes.byref(current_name), 0, 0, 0)
         return str(current_name.value)
 
