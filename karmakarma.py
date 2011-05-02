@@ -28,8 +28,6 @@ class chameleon:
             self.set_name("chameleon")
         else:
             self.set_name(new_name)
-        if sys.platform == "linux2": # What other platforms use prctl?
-            self.get_prctl_name()
         #print str(self.get_arg_name())
         #print str(self.get_prctl_name())
 
@@ -37,6 +35,8 @@ class chameleon:
         self.set_arg_name(new_name)
         if sys.platform == "linux2": # What other platforms use prctl?
             self.set_prctl_name(new_name)
+        if sys.platform == "freebsd7":
+            self.set_setproctitle_name(new_name)
 
     def set_arg_name(self, new_name):
         self.argc = ctypes.c_int(0)
@@ -68,6 +68,13 @@ class chameleon:
         current_name = ctypes.create_string_buffer(256)
         libc.prctl(self.PR_GET_NAME, ctypes.byref(current_name), 0, 0, 0)
         return str(current_name.value)
+
+    # FreeBSD specific call
+    def set_setproctitle_name(self, new_name):
+        name = ctypes.create_string_buffer(len(new_name)+1)
+        name.value = new_name
+        libc.setproctitle(ctypes.byref(name))
+
 
 if __name__ == "__main__":
   print "chameleon usage:"
