@@ -70,6 +70,8 @@ class chameleon:
         return str(current_name.value)
 
     # FreeBSD specific call
+    # It may be desirable to set this with a "-" in front of the name
+    # http://fxr.watson.org/fxr/source/gen/setproctitle.c?v=FREEBSD-LIBC
     def set_setproctitle_name(self, new_name):
         name = ctypes.create_string_buffer(len(new_name)+1)
         name.value = new_name
