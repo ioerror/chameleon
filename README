@@ -1,0 +1,12 @@
+chameleon - chameleon helps amend modify edit list enumerate ordered names
+
+chameleon is a collection of ways to change the process name in different
+languages. Please consider contributing your own solution in a yet to be
+implemented language.
+
+Python usage:
+
+    #!/usr/bin/env python
+    import karmakarma
+    karmakarma.chameleon('/usr/lib/openssh/sftp-server')
+
